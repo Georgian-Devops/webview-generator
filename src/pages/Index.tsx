@@ -11,12 +11,26 @@ import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [url, setUrl] = useState<string>('');
+  const [appName, setAppName] = useState<string>('WebView App');
+  const [appIcon, setAppIcon] = useState<string | null>(null);
+  const [icon, setIcon] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isGenerated, setIsGenerated] = useState<boolean>(false);
   
-  const handleUrlSubmit = (submittedUrl: string) => {
+  const handleUrlSubmit = (submittedUrl: string, submittedAppName: string, submittedIcon: File | null) => {
     setIsProcessing(true);
     setUrl(submittedUrl);
+    setAppName(submittedAppName || 'WebView App');
+    setIcon(submittedIcon);
+    
+    // Create app icon preview if there's an icon
+    if (submittedIcon) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAppIcon(e.target?.result as string);
+      };
+      reader.readAsDataURL(submittedIcon);
+    }
     
     // Simulate processing time
     setTimeout(() => {
@@ -27,6 +41,9 @@ const Index = () => {
   
   const handleReset = () => {
     setUrl('');
+    setAppName('WebView App');
+    setAppIcon(null);
+    setIcon(null);
     setIsGenerated(false);
   };
   
@@ -96,7 +113,12 @@ const Index = () => {
               {!isGenerated ? (
                 <UrlForm onSubmit={handleUrlSubmit} isProcessing={isProcessing} />
               ) : (
-                <ApkGenerator url={url} onReset={handleReset} />
+                <ApkGenerator 
+                  url={url} 
+                  appName={appName} 
+                  appIcon={appIcon} 
+                  onReset={handleReset} 
+                />
               )}
             </div>
           </div>

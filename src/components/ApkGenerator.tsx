@@ -8,12 +8,16 @@ import { useToast } from "@/components/ui/use-toast";
 interface ApkGeneratorProps {
   className?: string;
   url: string;
+  appName: string;
+  appIcon: string | null;
   onReset: () => void;
 }
 
 const ApkGenerator: React.FC<ApkGeneratorProps> = ({ 
   className, 
   url,
+  appName,
+  appIcon,
   onReset
 }) => {
   const { toast } = useToast();
@@ -49,7 +53,7 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
     setTimeout(() => {
       const a = document.createElement('a');
       a.href = '#';
-      a.download = 'webview-app.apk';
+      a.download = `${appName.replace(/\s+/g, '-').toLowerCase()}.apk`;
       a.click();
     }, 1000);
   };
@@ -79,6 +83,20 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
         </div>
         
         <div className="mb-5">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-16 h-16 rounded-xl overflow-hidden bg-primary/10 flex items-center justify-center">
+              {appIcon ? (
+                <img src={appIcon} alt={`${appName} icon`} className="w-full h-full object-cover" />
+              ) : (
+                <Smartphone className="h-8 w-8 text-primary" />
+              )}
+            </div>
+            <div>
+              <h4 className="font-medium text-lg">{appName}</h4>
+              <p className="text-sm text-muted-foreground">WebView Application</p>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Target URL</span>
             <Button 

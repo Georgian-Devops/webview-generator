@@ -4,7 +4,8 @@
 
 export interface WebViewGeneratorOptions {
   url: string;
-  appName?: string;
+  appName: string;
+  appIcon?: File | null;
   primaryColor?: string;
   splashScreen?: boolean;
   cacheEnabled?: boolean;
@@ -16,7 +17,6 @@ export class WebViewGenerator {
   
   constructor(options: WebViewGeneratorOptions) {
     this.options = {
-      appName: 'WebView App',
       primaryColor: '#3b82f6',
       splashScreen: true,
       cacheEnabled: true,
@@ -34,6 +34,8 @@ export class WebViewGenerator {
     // For now, we'll just return a mock APK file URL after a delay
     
     console.log(`Generating APK for URL: ${this.options.url}`);
+    console.log(`App Name: ${this.options.appName}`);
+    console.log(`App Icon: ${this.options.appIcon ? this.options.appIcon.name : 'Default icon'}`);
     console.log('Options:', this.options);
     
     return new Promise((resolve) => {
