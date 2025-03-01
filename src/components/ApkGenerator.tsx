@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Share2, Smartphone } from "lucide-react";
+import { Download, RefreshCw, Share2, Smartphone, Package } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ApkGeneratorProps {
   className?: string;
   url: string;
   appName: string;
+  packageName: string;
   appIcon: string | null;
   onReset: () => void;
 }
@@ -17,6 +18,7 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   className, 
   url,
   appName,
+  packageName,
   appIcon,
   onReset
 }) => {
@@ -93,7 +95,10 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
             </div>
             <div>
               <h4 className="font-medium text-lg">{appName}</h4>
-              <p className="text-sm text-muted-foreground">WebView Application</p>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Package className="h-3 w-3 mr-1" />
+                <span>{packageName}</span>
+              </div>
             </div>
           </div>
 

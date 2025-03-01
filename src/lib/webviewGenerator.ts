@@ -5,6 +5,7 @@
 export interface WebViewGeneratorOptions {
   url: string;
   appName: string;
+  packageName?: string;
   appIcon?: File | null;
   primaryColor?: string;
   splashScreen?: boolean;
@@ -21,6 +22,7 @@ export class WebViewGenerator {
       splashScreen: true,
       cacheEnabled: true,
       allowExternalLinks: false,
+      packageName: 'com.webview.app',
       ...options
     };
   }
@@ -35,6 +37,7 @@ export class WebViewGenerator {
     
     console.log(`Generating APK for URL: ${this.options.url}`);
     console.log(`App Name: ${this.options.appName}`);
+    console.log(`Package Name: ${this.options.packageName}`);
     console.log(`App Icon: ${this.options.appIcon ? this.options.appIcon.name : 'Default icon'}`);
     console.log('Options:', this.options);
     
@@ -60,5 +63,19 @@ export class WebViewGenerator {
     } catch (e) {
       return false;
     }
+  }
+
+  /**
+   * Validate the package name
+   * @param packageName The package name to validate
+   * @returns true if valid, false otherwise
+   */
+  public static validatePackageName(packageName: string): boolean {
+    if (!packageName) return false;
+    
+    // Package name should follow the reverse domain name convention
+    // E.g., com.example.myapp
+    const packageNameRegex = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+[0-9a-z_]$/i;
+    return packageNameRegex.test(packageName);
   }
 }

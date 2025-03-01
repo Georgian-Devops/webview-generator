@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, ExternalLink, Upload, Smartphone } from "lucide-react";
+import { ArrowRight, CheckCircle, ExternalLink, Upload, Smartphone, Package } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { WebViewGenerator } from '@/lib/webviewGenerator';
 
 interface UrlFormProps {
   className?: string;
-  onSubmit: (url: string, appName: string, icon: File | null) => void;
+  onSubmit: (url: string, appName: string, packageName: string, icon: File | null) => void;
   isProcessing: boolean;
 }
 
@@ -19,10 +20,15 @@ const UrlForm: React.FC<UrlFormProps> = ({
 }) => {
   const [url, setUrl] = useState('');
   const [appName, setAppName] = useState('WebView App');
+  const [packageName, setPackageName] = useState('com.webview.app');
   const [icon, setIcon] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState<string | null>(null);
   const [isValidated, setIsValidated] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
+  const [packageNameValidation, setPackageNameValidation] = useState({
+    isValid: true,
+    message: ''
+  });
   
   // Simple URL validation
   const validateUrl = (input: string): boolean => {
@@ -54,6 +60,28 @@ const UrlForm: React.FC<UrlFormProps> = ({
     setAppName(e.target.value);
   };
 
+  const handlePackageNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    setPackageName(input);
+    
+    if (input.trim() === '') {
+      setPackageNameValidation({
+        isValid: false,
+        message: 'Package name is required'
+      });
+    } else if (WebViewGenerator.validatePackageName(input)) {
+      setPackageNameValidation({
+        isValid: true,
+        message: 'Valid package name'
+      });
+    } else {
+      setPackageNameValidation({
+        isValid: false,
+        message: 'Please enter a valid package name (e.g., com.example.app)'
+      });
+    }
+  };
+
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -76,8 +104,8 @@ const UrlForm: React.FC<UrlFormProps> = ({
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateUrl(url)) {
-      onSubmit(url, appName, icon);
+    if (validateUrl(url) && packageNameValidation.isValid) {
+      onSubmit(url, appName, packageName, icon);
     }
   };
   
@@ -137,6 +165,38 @@ const UrlForm: React.FC<UrlFormProps> = ({
         </div>
 
         <div className="mb-5">
+          <Label htmlFor="package-name-input" className="block text-sm font-medium mb-2 text-foreground">
+            Package Name
+          </Label>
+          <div className="relative">
+            <Input
+              id="package-name-input"
+              type="text"
+              placeholder="com.example.app"
+              value={packageName}
+              onChange={handlePackageNameChange}
+              className="pr-10 h-12 rounded-lg shadow-sm text-base"
+              disabled={isProcessing}
+              autoComplete="off"
+            />
+            {packageName && packageNameValidation.isValid && (
+              <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500 animate-fade-in" />
+            )}
+            {packageName && !packageNameValidation.isValid && (
+              <Package className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground animate-fade-in" />
+            )}
+          </div>
+          {packageNameValidation.message && (
+            <p className={cn(
+              "mt-2 text-xs animate-fade-in",
+              packageNameValidation.isValid ? "text-green-600" : "text-red-500"
+            )}>
+              {packageNameValidation.message}
+            </p>
+          )}
+        </div>
+
+        <div className="mb-5">
           <Label htmlFor="icon-upload" className="block text-sm font-medium mb-2 text-foreground">
             App Icon (Optional)
           </Label>
@@ -181,7 +241,7 @@ const UrlForm: React.FC<UrlFormProps> = ({
         <Button 
           type="submit" 
           className="w-full h-12 rounded-lg font-medium text-base shadow-soft transition-all duration-300 flex items-center justify-center space-x-2 group"
-          disabled={!isValidated || isProcessing}
+          disabled={!isValidated || !packageNameValidation.isValid || isProcessing}
         >
           <span>{isProcessing ? 'Processing...' : 'Generate WebView App'}</span>
           <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
