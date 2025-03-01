@@ -12,15 +12,17 @@ import { Button } from '@/components/ui/button';
 const Index = () => {
   const [url, setUrl] = useState<string>('');
   const [appName, setAppName] = useState<string>('WebView App');
+  const [packageName, setPackageName] = useState<string>('com.webview.app');
   const [appIcon, setAppIcon] = useState<string | null>(null);
   const [icon, setIcon] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isGenerated, setIsGenerated] = useState<boolean>(false);
   
-  const handleUrlSubmit = (submittedUrl: string, submittedAppName: string, submittedIcon: File | null) => {
+  const handleUrlSubmit = (submittedUrl: string, submittedAppName: string, submittedPackageName: string, submittedIcon: File | null) => {
     setIsProcessing(true);
     setUrl(submittedUrl);
     setAppName(submittedAppName || 'WebView App');
+    setPackageName(submittedPackageName || 'com.webview.app');
     setIcon(submittedIcon);
     
     // Create app icon preview if there's an icon
@@ -42,6 +44,7 @@ const Index = () => {
   const handleReset = () => {
     setUrl('');
     setAppName('WebView App');
+    setPackageName('com.webview.app');
     setAppIcon(null);
     setIcon(null);
     setIsGenerated(false);
@@ -115,7 +118,8 @@ const Index = () => {
               ) : (
                 <ApkGenerator 
                   url={url} 
-                  appName={appName} 
+                  appName={appName}
+                  packageName={packageName}
                   appIcon={appIcon} 
                   onReset={handleReset} 
                 />
