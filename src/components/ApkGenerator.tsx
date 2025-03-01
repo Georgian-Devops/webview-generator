@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw, Share2, Smartphone, Package } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { WebViewGenerator } from '@/lib/webviewGenerator';
 
 interface ApkGeneratorProps {
   className?: string;
@@ -25,39 +26,98 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const { toast } = useToast();
   const [generationState, setGenerationState] = useState<'generating' | 'ready'>('generating');
   const [progress, setProgress] = useState(0);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   
-  // Simulate generation progress
-  React.useEffect(() => {
+  // Generate the actual APK
+  useEffect(() => {
     if (generationState === 'generating') {
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setGenerationState('ready');
-            return 100;
-          }
-          return prev + 5;
-        });
-      }, 200);
+      const generateApp = async () => {
+        try {
+          // Create WebViewGenerator instance with the provided options
+          const generator = new WebViewGenerator({
+            url,
+            appName,
+            packageName,
+            // Convert the data URL back to a File object if appIcon exists
+            appIcon: appIcon ? new File([dataURLtoBlob(appIcon)], 'app-icon.png', { type: 'image/png' }) : null
+          });
+          
+          // Update progress while generating
+          const progressInterval = setInterval(() => {
+            setProgress(prev => {
+              if (prev >= 90) {
+                clearInterval(progressInterval);
+                return 90;
+              }
+              return prev + 5;
+            });
+          }, 200);
+          
+          // Generate the APK
+          const apkUrl = await generator.generateApk();
+          
+          // Clear the interval and set final progress
+          clearInterval(progressInterval);
+          setProgress(100);
+          setDownloadUrl(apkUrl);
+          setGenerationState('ready');
+          
+          toast({
+            title: "APK generated successfully!",
+            description: "Your app is ready to download.",
+          });
+        } catch (error) {
+          console.error('Error generating APK:', error);
+          toast({
+            title: "Error generating APK",
+            description: "There was a problem generating your app. Please try again.",
+            variant: "destructive"
+          });
+          setGenerationState('ready');
+        }
+      };
       
-      return () => clearInterval(interval);
+      generateApp();
     }
-  }, [generationState]);
+  }, [generationState, url, appName, packageName, appIcon, toast]);
+  
+  // Helper function to convert data URL to Blob
+  const dataURLtoBlob = (dataURL: string): Blob => {
+    const parts = dataURL.split(';base64,');
+    const contentType = parts[0].split(':')[1];
+    const raw = window.atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+    
+    for (let i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+    
+    return new Blob([uInt8Array], { type: contentType });
+  };
   
   const handleDownload = () => {
+    if (!downloadUrl) {
+      toast({
+        title: "Download error",
+        description: "The APK file is not available. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     toast({
       title: "Download started",
       description: "Your APK file will download shortly.",
     });
     
-    // In a real application, this would trigger the actual download
-    // For demo purposes, we'll just simulate the download with a timeout
-    setTimeout(() => {
-      const a = document.createElement('a');
-      a.href = '#';
-      a.download = `${appName.replace(/\s+/g, '-').toLowerCase()}.apk`;
-      a.click();
-    }, 1000);
+    // Create a link and trigger the download
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = `${appName.replace(/\s+/g, '-').toLowerCase()}.apk`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
   
   const handleShare = () => {

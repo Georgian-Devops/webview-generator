@@ -44,7 +44,8 @@ export class WebViewGenerator {
     return new Promise((resolve) => {
       setTimeout(() => {
         // In a real app, this would be the download URL for the generated APK
-        resolve('https://example.com/download/webview-app.apk');
+        // We're updating this to point to a valid Android APK file sample
+        resolve('https://github.com/ionic-team/cordova-plugin-ionic/blob/master/fixtures/mock.apk?raw=true');
       }, 5000); // Simulate a 5-second generation process
     });
   }
