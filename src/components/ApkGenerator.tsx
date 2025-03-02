@@ -2,9 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Share2, Smartphone, Package } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { WebViewGenerator } from '@/lib/webviewGenerator';
+import { AppInfo } from './apk-generator/AppInfo';
+import { ProgressBar } from './apk-generator/ProgressBar';
+import { ReadyStatus } from './apk-generator/ReadyStatus';
+import { DownloadButton } from './apk-generator/DownloadButton';
+import { dataURLtoBlob } from './apk-generator/utils';
 
 interface ApkGeneratorProps {
   className?: string;
@@ -90,21 +95,6 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
     }
   }, [generationState, url, appName, packageName, appIcon, toast]);
   
-  // Helper function to convert data URL to Blob
-  const dataURLtoBlob = (dataURL: string): Blob => {
-    const parts = dataURL.split(';base64,');
-    const contentType = parts[0].split(':')[1];
-    const raw = window.atob(parts[1]);
-    const rawLength = raw.length;
-    const uInt8Array = new Uint8Array(rawLength);
-    
-    for (let i = 0; i < rawLength; ++i) {
-      uInt8Array[i] = raw.charCodeAt(i);
-    }
-    
-    return new Blob([uInt8Array], { type: contentType });
-  };
-  
   const handleDownload = () => {
     if (!downloadUrl) {
       toast({
@@ -139,10 +129,7 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   };
   
   return (
-    <div className={cn(
-      "w-full max-w-xl mx-auto",
-      className
-    )}>
+    <div className={cn("w-full max-w-xl mx-auto", className)}>
       <div className="glass-panel rounded-2xl p-6 animate-fade-in">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-medium">WebView App Generator</h3>
@@ -153,81 +140,24 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           )}
         </div>
         
-        <div className="mb-5">
-          <div className="flex items-center gap-4 mb-5">
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-primary/10 flex items-center justify-center">
-              {appIcon ? (
-                <img src={appIcon} alt={`${appName} icon`} className="w-full h-full object-cover" />
-              ) : (
-                <Smartphone className="h-8 w-8 text-primary" />
-              )}
-            </div>
-            <div>
-              <h4 className="font-medium text-lg">{appName}</h4>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Package className="h-3 w-3 mr-1" />
-                <span>{packageName}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Target URL</span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 px-2 text-xs" 
-              onClick={handleShare}
-            >
-              <Share2 className="h-3 w-3 mr-1" /> Share
-            </Button>
-          </div>
-          <div className="p-3 bg-muted/50 rounded-md text-sm font-mono break-all">
-            {url}
-          </div>
-        </div>
+        <AppInfo
+          appName={appName}
+          packageName={packageName}
+          appIcon={appIcon}
+          url={url}
+          onShare={handleShare}
+        />
         
         {generationState === 'generating' ? (
-          <div className="mb-5 animate-pulse-subtle">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Generating APK</span>
-              <span className="text-xs text-muted-foreground">{progress}%</span>
-            </div>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary transition-all duration-300 ease-out-expo"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="mt-3 flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-              <RefreshCw className="h-3 w-3 animate-spin" />
-              <span>Please wait, compiling app</span>
-            </div>
-          </div>
+          <ProgressBar progress={progress} />
         ) : (
-          <div className="mb-5">
-            <div className="p-4 bg-accent/10 rounded-lg border border-accent/20 flex items-center">
-              <Smartphone className="h-8 w-8 text-accent mr-4 animate-float" />
-              <div>
-                <h4 className="font-medium text-foreground">Ready to download</h4>
-                <p className="text-sm text-muted-foreground">Your WebView app has been successfully generated</p>
-              </div>
-            </div>
-          </div>
+          <ReadyStatus />
         )}
         
-        <Button 
-          className="w-full h-12 rounded-lg font-medium shadow-soft transition-all duration-300 flex items-center justify-center space-x-2"
-          disabled={generationState !== 'ready'}
-          onClick={handleDownload}
-        >
-          <Download className="h-4 w-4" />
-          <span>Download APK</span>
-        </Button>
-        
-        <p className="mt-4 text-xs text-center text-muted-foreground">
-          File size: ~2.5MB • Android 5.0+ required
-        </p>
+        <DownloadButton 
+          disabled={generationState !== 'ready'} 
+          onClick={handleDownload} 
+        />
       </div>
     </div>
   );
