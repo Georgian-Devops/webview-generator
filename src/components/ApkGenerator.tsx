@@ -28,6 +28,15 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const [progress, setProgress] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   
+  // Clean up the blob URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (downloadUrl && downloadUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
+  
   // Generate the actual APK
   useEffect(() => {
     if (generationState === 'generating') {

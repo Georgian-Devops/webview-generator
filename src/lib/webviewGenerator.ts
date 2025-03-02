@@ -43,9 +43,27 @@ export class WebViewGenerator {
     
     return new Promise((resolve) => {
       setTimeout(() => {
-        // In a real app, this would be the download URL for the generated APK
-        // We're updating this to point to a valid Android APK file sample
-        resolve('https://github.com/ionic-team/cordova-plugin-ionic/blob/master/fixtures/mock.apk?raw=true');
+        // Instead of linking to GitHub, create a proper downloadable file name
+        // In a real implementation, this would be a dynamically generated APK
+        // We're using a data URI for a small APK-like file to simulate the download
+        
+        // Create a simple "APK" file (actually just a text file with APK extension)
+        const appData = `
+          WebView App
+          ------------
+          URL: ${this.options.url}
+          App Name: ${this.options.appName}
+          Package: ${this.options.packageName}
+          Generated: ${new Date().toISOString()}
+          
+          Note: This is a simulated APK file for demonstration purposes.
+          In a production environment, this would be a real Android APK file.
+        `;
+        
+        const blob = new Blob([appData], { type: 'application/vnd.android.package-archive' });
+        const apkUrl = URL.createObjectURL(blob);
+        
+        resolve(apkUrl);
       }, 5000); // Simulate a 5-second generation process
     });
   }
