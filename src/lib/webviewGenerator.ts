@@ -33,7 +33,7 @@ export class WebViewGenerator {
    */
   public async generateApk(): Promise<string> {
     // In a real implementation, this would call a backend API
-    // For now, we'll just return a mock APK file URL after a delay
+    // For now, we'll just return a mock message after a delay
     
     console.log(`Generating APK for URL: ${this.options.url}`);
     console.log(`App Name: ${this.options.appName}`);
@@ -43,27 +43,9 @@ export class WebViewGenerator {
     
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Instead of linking to GitHub, create a proper downloadable file name
-        // In a real implementation, this would be a dynamically generated APK
-        // We're using a data URI for a small APK-like file to simulate the download
-        
-        // Create a simple "APK" file (actually just a text file with APK extension)
-        const appData = `
-          WebView App
-          ------------
-          URL: ${this.options.url}
-          App Name: ${this.options.appName}
-          Package: ${this.options.packageName}
-          Generated: ${new Date().toISOString()}
-          
-          Note: This is a simulated APK file for demonstration purposes.
-          In a production environment, this would be a real Android APK file.
-        `;
-        
-        const blob = new Blob([appData], { type: 'application/vnd.android.package-archive' });
-        const apkUrl = URL.createObjectURL(blob);
-        
-        resolve(apkUrl);
+        // Instead of creating a fake APK file, we'll return a message
+        // explaining this is a demo version
+        resolve("demo");
       }, 5000); // Simulate a 5-second generation process
     });
   }

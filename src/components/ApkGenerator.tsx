@@ -31,16 +31,6 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const { toast } = useToast();
   const [generationState, setGenerationState] = useState<'generating' | 'ready'>('generating');
   const [progress, setProgress] = useState(0);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  
-  // Clean up the blob URL when component unmounts
-  useEffect(() => {
-    return () => {
-      if (downloadUrl && downloadUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(downloadUrl);
-      }
-    };
-  }, [downloadUrl]);
   
   // Generate the actual APK
   useEffect(() => {
@@ -68,23 +58,22 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           }, 200);
           
           // Generate the APK
-          const apkUrl = await generator.generateApk();
+          await generator.generateApk();
           
           // Clear the interval and set final progress
           clearInterval(progressInterval);
           setProgress(100);
-          setDownloadUrl(apkUrl);
           setGenerationState('ready');
           
           toast({
-            title: "APK generated successfully!",
-            description: "Your app is ready to download.",
+            title: "Demo completed successfully!",
+            description: "This is a demo version. In a production app, you would download a real APK file here.",
           });
         } catch (error) {
           console.error('Error generating APK:', error);
           toast({
-            title: "Error generating APK",
-            description: "There was a problem generating your app. Please try again.",
+            title: "Error in demo",
+            description: "There was a problem with the demo. Please try again.",
             variant: "destructive"
           });
           setGenerationState('ready');
@@ -96,27 +85,10 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   }, [generationState, url, appName, packageName, appIcon, toast]);
   
   const handleDownload = () => {
-    if (!downloadUrl) {
-      toast({
-        title: "Download error",
-        description: "The APK file is not available. Please try again.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
     toast({
-      title: "Download started",
-      description: "Your APK file will download shortly.",
+      title: "This is a demo version",
+      description: "In a production app, this would download a real APK file. Real APK generation requires a backend service.",
     });
-    
-    // Create a link and trigger the download
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = `${appName.replace(/\s+/g, '-').toLowerCase()}.apk`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   };
   
   const handleShare = () => {
@@ -154,10 +126,20 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           <ReadyStatus />
         )}
         
-        <DownloadButton 
-          disabled={generationState !== 'ready'} 
-          onClick={handleDownload} 
-        />
+        <div className="mt-6">
+          <DownloadButton 
+            disabled={generationState !== 'ready'} 
+            onClick={handleDownload} 
+          />
+          
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+            <p className="font-medium mb-1">⚠️ Demo Version</p>
+            <p>
+              This is a demonstration only. In a production environment, this would generate a real Android APK file. 
+              Actual APK generation requires a backend build service which isn't included in this demo.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
