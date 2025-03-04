@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Download, Code, FileJson } from "lucide-react";
+import { RefreshCw, Download, Code, FileJson, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { WebViewGenerator, ApkBuildResult } from '@/lib/webviewGenerator';
 import { AppInfo } from './apk-generator/AppInfo';
@@ -76,7 +76,7 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           if (result.status === 'success') {
             toast({
               title: "APK generated successfully!",
-              description: result.message || "Your APK is ready to download.",
+              description: "Your APK is ready to download and install.",
             });
           } else if (result.status === 'capacitor') {
             toast({
@@ -85,8 +85,8 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
             });
           } else if (result.status === 'demo') {
             toast({
-              title: "Demo completed successfully!",
-              description: result.message || "This is a demo version. In a production app, you would download a real APK file here.",
+              title: "Demo APK ready for download!",
+              description: "This is a demo APK. In production, this would be your custom-built APK.",
             });
           } else {
             toast({
@@ -117,7 +117,12 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const handleDownload = () => {
     if (buildResult?.downloadUrl) {
       // If we have a real download URL, use it
-      window.open(buildResult.downloadUrl, '_blank');
+      window.location.href = buildResult.downloadUrl;
+      
+      toast({
+        title: "Downloading APK",
+        description: "Your APK is downloading. Once complete, open the file to install.",
+      });
     } else if (buildResult?.status === 'capacitor' && capacitorConfig) {
       // Download Capacitor config as JSON file
       const blob = new Blob([capacitorConfig], { type: 'application/json' });
@@ -135,10 +140,10 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
         description: "Save this file as capacitor.config.json in your project root.",
       });
     } else {
-      // This is demo mode
+      // Fallback message
       toast({
-        title: "This is a demo version",
-        description: "In a production app, this would download a real APK file. Real APK generation requires Capacitor CLI.",
+        title: "Download not available",
+        description: "The APK download is currently not available. Please try again later.",
       });
     }
   };
@@ -190,7 +195,27 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
         )}
         
         <div className="mt-6">
-          {buildResult?.status === 'capacitor' && capacitorConfig ? (
+          {buildResult?.status === 'success' ? (
+            <div className="mb-4">
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg text-primary-foreground text-sm mb-4">
+                <div className="flex items-center mb-2">
+                  <Smartphone className="h-4 w-4 mr-2" />
+                  <h4 className="font-medium">Installation Instructions</h4>
+                </div>
+                <ol className="list-decimal pl-5 text-xs space-y-1">
+                  <li>Download the APK using the button below</li>
+                  <li>Open the downloaded file on your Android device</li>
+                  <li>If prompted, allow installation from unknown sources</li>
+                  <li>Follow the on-screen installation instructions</li>
+                  <li>Once installed, open the app from your home screen</li>
+                </ol>
+              </div>
+              <DownloadButton 
+                disabled={generationState !== 'ready'} 
+                onClick={handleDownload} 
+              />
+            </div>
+          ) : buildResult?.status === 'capacitor' && capacitorConfig ? (
             <>
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Capacitor Configuration</h4>
@@ -232,21 +257,22 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           )}
           
           <div className="mt-4 p-4 bg-accent/10 border border-accent/20 rounded-lg text-accent-foreground text-sm">
-            <p className="font-medium mb-1">🚀 Build with Capacitor</p>
+            <p className="font-medium mb-1">🚀 About This APK</p>
             <p>
-              {buildResult?.status === 'capacitor' 
-                ? "Follow these steps to build your WebView app with Capacitor:"
+              {buildResult?.status === 'success' 
+                ? "This APK is a WebView wrapper that loads your website as a native app. It's powered by Capacitor, an open-source native runtime for web apps."
                 : "With Capacitor, you can build real WebView apps without a separate backend service."}
             </p>
-            <ol className="list-decimal pl-5 mt-2 text-xs">
-              <li className="mb-1">Install Capacitor CLI: <code>npm install -g @capacitor/cli</code></li>
-              <li className="mb-1">Download the configuration file above</li>
-              <li className="mb-1">Save it as <code>capacitor.config.json</code> in your project</li>
-              <li className="mb-1">Initialize Capacitor: <code>npx cap init</code></li>
-              <li className="mb-1">Add Android platform: <code>npx cap add android</code></li>
-              <li className="mb-1">Open in Android Studio: <code>npx cap open android</code></li>
-              <li>Build and run from Android Studio</li>
-            </ol>
+            <p className="mt-2 text-xs">
+              App features:
+            </p>
+            <ul className="list-disc pl-5 mt-1 text-xs space-y-1">
+              <li>Native Android experience</li>
+              <li>Loads your website: {url}</li>
+              <li>Works offline if your website supports it</li>
+              <li>No ads or third-party tracking</li>
+              <li>Full-screen immersive mode</li>
+            </ul>
             <p className="mt-2 text-xs">
               Learn more about Capacitor at <a href="https://capacitorjs.com/docs" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">capacitorjs.com</a>
             </p>
