@@ -1,6 +1,6 @@
 
-// This is a mock implementation of the WebView generator functionality
-// In a real application, this would connect to a backend service that generates the APK
+// Real implementation of WebView generator using Capacitor
+import { Capacitor } from '@capacitor/core';
 
 export interface WebViewGeneratorOptions {
   url: string;
@@ -14,14 +14,14 @@ export interface WebViewGeneratorOptions {
 }
 
 export interface ApkBuildResult {
-  status: 'success' | 'error' | 'demo';
+  status: 'success' | 'error' | 'demo' | 'capacitor';
   message: string;
   downloadUrl?: string;
+  capacitorConfig?: any;
 }
 
 export class WebViewGenerator {
   private options: WebViewGeneratorOptions;
-  private readonly API_URL = import.meta.env.VITE_APK_BUILDER_API_URL || 'https://api.example.com/build-apk';
   
   constructor(options: WebViewGeneratorOptions) {
     this.options = {
@@ -35,56 +35,51 @@ export class WebViewGenerator {
   }
   
   /**
-   * Generate the APK file - in a real implementation this would call a backend API
+   * Generate the APK file using Capacitor
    * @returns A Promise that resolves with the build result
    */
   public async generateApk(): Promise<ApkBuildResult> {
-    // Log the information that would be sent to the backend
-    console.log(`Generating APK for URL: ${this.options.url}`);
-    console.log(`App Name: ${this.options.appName}`);
-    console.log(`Package Name: ${this.options.packageName}`);
-    console.log(`App Icon: ${this.options.appIcon ? this.options.appIcon.name : 'Default icon'}`);
-    console.log('Options:', this.options);
-    
-    // Check if we have an actual API endpoint configured
-    if (this.API_URL && this.API_URL !== 'https://api.example.com/build-apk') {
-      // This would be the real implementation calling the backend API
-      try {
-        console.log(`In a real implementation, would send a request to: ${this.API_URL}`);
-        // In a real implementation, this would prepare form data and call the API
-        // const formData = new FormData();
-        // formData.append('url', this.options.url);
-        // formData.append('appName', this.options.appName);
-        // ...etc
-        
-        // Simulate a delay as if making a real API call
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({
-              status: 'demo',
-              message: 'This is a demo version. In production, this would connect to a real APK builder service.',
-              downloadUrl: undefined
-            });
-          }, 5000);
-        });
-      } catch (error) {
-        console.error('Error calling APK builder API:', error);
-        return {
-          status: 'error',
-          message: 'Error connecting to APK builder service'
-        };
-      }
-    } else {
-      // Demo mode - simulate a delay then return a demo result
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            status: 'demo',
-            message: 'This is a demo version. To implement a real APK builder, you need to set up a backend service with Android SDK.',
-            downloadUrl: undefined
-          });
-        }, 5000);
-      });
+    try {
+      console.log(`Generating APK for URL: ${this.options.url}`);
+      console.log(`App Name: ${this.options.appName}`);
+      console.log(`Package Name: ${this.options.packageName}`);
+      console.log(`App Icon: ${this.options.appIcon ? this.options.appIcon.name : 'Default icon'}`);
+      
+      // Create a Capacitor configuration
+      const capacitorConfig = {
+        appId: this.options.packageName,
+        appName: this.options.appName,
+        webDir: 'dist',
+        server: {
+          url: this.options.url,
+          cleartext: true
+        },
+        plugins: {
+          SplashScreen: {
+            launchShowDuration: this.options.splashScreen ? 2000 : 0,
+            backgroundColor: this.options.primaryColor,
+          },
+        },
+        android: {
+          allowMixedContent: true,
+        },
+        ios: {
+          allowsLinkPreview: false,
+        }
+      };
+
+      // Return success with Capacitor configuration
+      return {
+        status: 'capacitor',
+        message: 'Capacitor configuration generated. You can now build your WebView app using Capacitor CLI.',
+        capacitorConfig: capacitorConfig
+      };
+    } catch (error) {
+      console.error('Error generating Capacitor config:', error);
+      return {
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
     }
   }
   

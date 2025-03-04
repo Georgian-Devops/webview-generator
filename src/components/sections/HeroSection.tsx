@@ -28,7 +28,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     <section className="w-full py-16 md:py-24 px-6">
       <div className="container mx-auto max-w-4xl text-center">
         <div className="inline-block mb-3 pill bg-primary/10 text-primary animate-fade-in">
-          <span>Demo Version</span>
+          <span>Capacitor-Powered</span>
         </div>
         
         <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight animate-slide-down">
@@ -40,13 +40,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           Turn any website into a native Android application in seconds. No coding required.
         </p>
         
-        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm p-4 max-w-3xl mx-auto animate-slide-down" style={{ animationDelay: '150ms' }}>
-          <p className="font-medium">⚠️ Backend Service Required</p>
+        <div className="mb-4 bg-accent/10 border border-accent/20 rounded-lg text-accent-foreground text-sm p-4 max-w-3xl mx-auto animate-slide-down" style={{ animationDelay: '150ms' }}>
+          <p className="font-medium">✨ Powered by Capacitor</p>
           <p>
-            This demo shows the UI flow for APK generation. For a production app, you need to set up a backend build service 
-            with Android SDK that can compile websites into APK files.
+            This app generates Capacitor configurations for your WebView app. Download the configuration 
+            and follow the instructions to build a real APK file on your local machine.
           </p>
-          <p className="mt-2 text-xs">Set the <code>VITE_APK_BUILDER_API_URL</code> environment variable to connect to your backend service.</p>
+          <p className="mt-2 text-xs">No backend service required - Capacitor handles everything!</p>
         </div>
         
         <div className="w-full max-w-3xl mx-auto" style={{ animationDelay: '200ms' }}>

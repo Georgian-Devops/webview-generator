@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Download, Code, FileJson } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { WebViewGenerator, ApkBuildResult } from '@/lib/webviewGenerator';
 import { AppInfo } from './apk-generator/AppInfo';
@@ -32,6 +32,7 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const [generationState, setGenerationState] = useState<'generating' | 'ready'>('generating');
   const [progress, setProgress] = useState(0);
   const [buildResult, setBuildResult] = useState<ApkBuildResult | null>(null);
+  const [capacitorConfig, setCapacitorConfig] = useState<string | null>(null);
   
   // Generate the actual APK
   useEffect(() => {
@@ -66,11 +67,21 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           setProgress(100);
           setGenerationState('ready');
           setBuildResult(result);
+
+          // Format Capacitor config for display
+          if (result.capacitorConfig) {
+            setCapacitorConfig(JSON.stringify(result.capacitorConfig, null, 2));
+          }
           
           if (result.status === 'success') {
             toast({
               title: "APK generated successfully!",
               description: result.message || "Your APK is ready to download.",
+            });
+          } else if (result.status === 'capacitor') {
+            toast({
+              title: "Capacitor configuration ready!",
+              description: "Your WebView app configuration is ready. Use the Capacitor CLI to build your app.",
             });
           } else if (result.status === 'demo') {
             toast({
@@ -107,11 +118,38 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
     if (buildResult?.downloadUrl) {
       // If we have a real download URL, use it
       window.open(buildResult.downloadUrl, '_blank');
+    } else if (buildResult?.status === 'capacitor' && capacitorConfig) {
+      // Download Capacitor config as JSON file
+      const blob = new Blob([capacitorConfig], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'capacitor.config.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Configuration Downloaded",
+        description: "Save this file as capacitor.config.json in your project root.",
+      });
     } else {
       // This is demo mode
       toast({
         title: "This is a demo version",
-        description: "In a production app, this would download a real APK file. Real APK generation requires a backend service.",
+        description: "In a production app, this would download a real APK file. Real APK generation requires Capacitor CLI.",
+      });
+    }
+  };
+  
+  const handleCopyConfig = () => {
+    if (capacitorConfig) {
+      navigator.clipboard.writeText(capacitorConfig).then(() => {
+        toast({
+          title: "Configuration copied to clipboard",
+          description: "You can now paste the Capacitor configuration into your project.",
+        });
       });
     }
   };
@@ -152,28 +190,66 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
         )}
         
         <div className="mt-6">
-          <DownloadButton 
-            disabled={generationState !== 'ready'} 
-            onClick={handleDownload} 
-          />
+          {buildResult?.status === 'capacitor' && capacitorConfig ? (
+            <>
+              <div className="mb-4">
+                <h4 className="text-sm font-medium mb-2">Capacitor Configuration</h4>
+                <div className="bg-muted/50 p-3 rounded-md overflow-x-auto">
+                  <pre className="text-xs whitespace-pre-wrap">{capacitorConfig}</pre>
+                </div>
+                <div className="mt-2 flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleCopyConfig}
+                    className="text-xs flex items-center"
+                  >
+                    <Code className="h-3 w-3 mr-1" /> Copy Config
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleDownload}
+                    className="text-xs flex items-center"
+                  >
+                    <FileJson className="h-3 w-3 mr-1" /> Download JSON
+                  </Button>
+                </div>
+              </div>
+              <Button 
+                className="w-full h-12 rounded-lg font-medium shadow-soft transition-all duration-300 flex items-center justify-center space-x-2"
+                onClick={handleDownload}
+              >
+                <Download className="h-4 w-4" />
+                <span>Download Config</span>
+              </Button>
+            </>
+          ) : (
+            <DownloadButton 
+              disabled={generationState !== 'ready'} 
+              onClick={handleDownload} 
+            />
+          )}
           
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-            <p className="font-medium mb-1">⚠️ APK Backend Required</p>
+          <div className="mt-4 p-4 bg-accent/10 border border-accent/20 rounded-lg text-accent-foreground text-sm">
+            <p className="font-medium mb-1">🚀 Build with Capacitor</p>
             <p>
-              {buildResult?.status === 'demo' 
-                ? buildResult.message 
-                : "This is a demonstration only. In a production environment, this would generate a real Android APK file. Actual APK generation requires a backend build service with Android SDK."}
+              {buildResult?.status === 'capacitor' 
+                ? "Follow these steps to build your WebView app with Capacitor:"
+                : "With Capacitor, you can build real WebView apps without a separate backend service."}
             </p>
+            <ol className="list-decimal pl-5 mt-2 text-xs">
+              <li className="mb-1">Install Capacitor CLI: <code>npm install -g @capacitor/cli</code></li>
+              <li className="mb-1">Download the configuration file above</li>
+              <li className="mb-1">Save it as <code>capacitor.config.json</code> in your project</li>
+              <li className="mb-1">Initialize Capacitor: <code>npx cap init</code></li>
+              <li className="mb-1">Add Android platform: <code>npx cap add android</code></li>
+              <li className="mb-1">Open in Android Studio: <code>npx cap open android</code></li>
+              <li>Build and run from Android Studio</li>
+            </ol>
             <p className="mt-2 text-xs">
-              To implement a real APK builder service, you would need to:
+              Learn more about Capacitor at <a href="https://capacitorjs.com/docs" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">capacitorjs.com</a>
             </p>
-            <ul className="list-disc pl-5 mt-1 text-xs">
-              <li>Create a server with Android SDK installed</li>
-              <li>Implement an API endpoint that accepts the app details</li>
-              <li>Build the APK using tools like Cordova or Capacitor</li>
-              <li>Store and serve the generated APK file</li>
-              <li>Configure the frontend to use the API by setting VITE_APK_BUILDER_API_URL</li>
-            </ul>
           </div>
         </div>
       </div>
