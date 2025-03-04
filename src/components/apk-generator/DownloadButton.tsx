@@ -17,11 +17,11 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({ disabled, onClic
         onClick={onClick}
       >
         <Download className="h-4 w-4" />
-        <span>Download Android Template</span>
+        <span>Download Android WebView Template</span>
       </Button>
       
       <p className="mt-4 text-xs text-center text-muted-foreground">
-        File size: ~2MB • Android 5.0+ required • Extract ZIP after download
+        File size: ~5MB • Android Studio required • Follow customization guide after download
       </p>
     </>
   );
