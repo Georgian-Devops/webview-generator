@@ -5,16 +5,16 @@ import { Capacitor } from '@capacitor/core';
 export interface WebViewGeneratorOptions {
   url: string;
   appName: string;
-  packageName?: string;
-  appIcon?: File | null;
-  primaryColor?: string;
-  splashScreen?: boolean;
-  cacheEnabled?: boolean;
-  allowExternalLinks?: boolean;
+  packageName: string;
+  appIcon?: string;
+  appVersion?: string;
+  appVersionCode?: number;
+  statusBarColor?: string;
+  customUserAgent?: string;
 }
 
 export interface ApkBuildResult {
-  status: 'success' | 'error' | 'demo';
+  status: 'success' | 'error' | 'demo' | 'capacitor';
   message: string;
   downloadUrl?: string;
   capacitorConfig?: any;
@@ -25,13 +25,14 @@ export class WebViewGenerator {
   
   constructor(options: WebViewGeneratorOptions) {
     this.options = {
-      primaryColor: '#3b82f6',
-      splashScreen: true,
-      cacheEnabled: true,
-      allowExternalLinks: false,
-      packageName: 'com.webview.app',
+      appVersion: '1.0.0',
+      appVersionCode: 1,
+      statusBarColor: '#FFFFFF',
       ...options
     };
+
+    // Validate required options
+    this.validateOptions();
   }
   
   /**
@@ -40,31 +41,30 @@ export class WebViewGenerator {
    */
   public async generateApk(): Promise<ApkBuildResult> {
     try {
-      console.log(`Generating APK for URL: ${this.options.url}`);
-      console.log(`App Name: ${this.options.appName}`);
-      console.log(`Package Name: ${this.options.packageName}`);
-      console.log(`App Icon: ${this.options.appIcon ? this.options.appIcon.name : 'Default icon'}`);
-      
-      // Create a Capacitor configuration
+      // Create Capacitor configuration
       const capacitorConfig = {
         appId: this.options.packageName,
         appName: this.options.appName,
         webDir: 'dist',
+        bundledWebRuntime: false,
         server: {
           url: this.options.url,
           cleartext: true
         },
-        plugins: {
-          SplashScreen: {
-            launchShowDuration: this.options.splashScreen ? 2000 : 0,
-            backgroundColor: this.options.primaryColor,
-          },
-        },
         android: {
+          backgroundColor: '#FFFFFF',
           allowMixedContent: true,
-        },
-        ios: {
-          allowsLinkPreview: false,
+          captureInput: true,
+          webContentsDebuggingEnabled: false,
+          buildOptions: {
+            minSdkVersion: 21,
+            targetSdkVersion: 30,
+            versionName: this.options.appVersion,
+            versionCode: this.options.appVersionCode
+          },
+          style: {
+            statusBarColor: this.options.statusBarColor
+          }
         }
       };
 
@@ -88,32 +88,24 @@ export class WebViewGenerator {
   }
   
   /**
-   * Validate the provided URL
-   * @param url The URL to validate
-   * @returns true if valid, false otherwise
+   * Validate that all required options are provided
+   * @throws Error if required options are missing
    */
-  public static validateUrl(url: string): boolean {
-    if (!url) return false;
-    
-    try {
-      const parsedUrl = new URL(url);
-      return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-    } catch (e) {
-      return false;
+  private validateOptions() {
+    if (!this.options.url) {
+      throw new Error('URL is required');
     }
-  }
+    if (!this.options.appName) {
+      throw new Error('App name is required');
+    }
+    if (!this.options.packageName) {
+      throw new Error('Package name is required');
+    }
 
-  /**
-   * Validate the package name
-   * @param packageName The package name to validate
-   * @returns true if valid, false otherwise
-   */
-  public static validatePackageName(packageName: string): boolean {
-    if (!packageName) return false;
-    
-    // Package name should follow the reverse domain name convention
-    // E.g., com.example.myapp
+    // Validate package name format (com.example.app)
     const packageNameRegex = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+[0-9a-z_]$/i;
-    return packageNameRegex.test(packageName);
+    if (!packageNameRegex.test(this.options.packageName)) {
+      throw new Error('Invalid package name format. Should be like "com.example.app"');
+    }
   }
 }
