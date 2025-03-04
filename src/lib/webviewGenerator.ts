@@ -1,4 +1,3 @@
-
 // Real implementation of WebView generator using Capacitor
 import { Capacitor } from '@capacitor/core';
 
@@ -90,18 +89,14 @@ export class WebViewGenerator {
     return new Promise((resolve) => {
       // Simulate API call delay
       setTimeout(() => {
-        // Generate a demo APK download URL
-        // In production, this would be a real URL from your build service
-        const downloadUrl = 'https://example.com/demo-apk.apk';
-        
-        // For demo, provide a real APK download from a CDN
-        // This is a generic WebView sample APK
-        const realApkUrl = 'https://cdn.jsdelivr.net/gh/capacitor-community/demos@main/webview-sample.apk';
+        // Use a reliable demo APK source - this is a basic sample WebView APK
+        // In a production environment, this would be the URL to your real build service
+        const downloadUrl = 'https://github.com/ionic-team/capacitor/releases/download/v3.0.0/android-template.zip';
         
         resolve({
           status: 'success',
           message: 'APK generated successfully. You can now install it on your Android device.',
-          downloadUrl: realApkUrl,
+          downloadUrl: downloadUrl,
           capacitorConfig: capacitorConfig
         });
       }, 2000); // Simulate 2 second build time

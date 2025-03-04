@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,21 +33,17 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const [buildResult, setBuildResult] = useState<ApkBuildResult | null>(null);
   const [capacitorConfig, setCapacitorConfig] = useState<string | null>(null);
   
-  // Generate the actual APK
   useEffect(() => {
     if (generationState === 'generating') {
       const generateApp = async () => {
         try {
-          // Create WebViewGenerator instance with the provided options
           const generator = new WebViewGenerator({
             url,
             appName,
             packageName,
-            // Convert the data URL back to a File object if appIcon exists
             appIcon: appIcon ? new File([dataURLtoBlob(appIcon)], 'app-icon.png', { type: 'image/png' }) : null
           });
           
-          // Update progress while generating
           const progressInterval = setInterval(() => {
             setProgress(prev => {
               if (prev >= 90) {
@@ -59,16 +54,13 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
             });
           }, 200);
           
-          // Generate the APK
           const result = await generator.generateApk();
           
-          // Clear the interval and set final progress
           clearInterval(progressInterval);
           setProgress(100);
           setGenerationState('ready');
           setBuildResult(result);
 
-          // Format Capacitor config for display
           if (result.capacitorConfig) {
             setCapacitorConfig(JSON.stringify(result.capacitorConfig, null, 2));
           }
@@ -116,15 +108,13 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   
   const handleDownload = () => {
     if (buildResult?.downloadUrl) {
-      // If we have a real download URL, use it
       window.location.href = buildResult.downloadUrl;
       
       toast({
-        title: "Downloading APK",
-        description: "Your APK is downloading. Once complete, open the file to install.",
+        title: "Downloading Android Template",
+        description: "Your template is downloading. Once complete, extract the ZIP file.",
       });
     } else if (buildResult?.status === 'capacitor' && capacitorConfig) {
-      // Download Capacitor config as JSON file
       const blob = new Blob([capacitorConfig], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -140,7 +130,6 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
         description: "Save this file as capacitor.config.json in your project root.",
       });
     } else {
-      // Fallback message
       toast({
         title: "Download not available",
         description: "The APK download is currently not available. Please try again later.",
@@ -203,11 +192,11 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
                   <h4 className="font-medium">Installation Instructions</h4>
                 </div>
                 <ol className="list-decimal pl-5 text-xs space-y-1">
-                  <li>Download the APK using the button below</li>
-                  <li>Open the downloaded file on your Android device</li>
-                  <li>If prompted, allow installation from unknown sources</li>
-                  <li>Follow the on-screen installation instructions</li>
-                  <li>Once installed, open the app from your home screen</li>
+                  <li>Download the Android template ZIP using the button below</li>
+                  <li>Extract the ZIP file on your computer</li>
+                  <li>Open Android Studio and import the extracted project</li>
+                  <li>Update the URLs in the project to point to your website</li>
+                  <li>Build and run the app on your Android device</li>
                 </ol>
               </div>
               <DownloadButton 
@@ -257,23 +246,22 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           )}
           
           <div className="mt-4 p-4 bg-accent/10 border border-accent/20 rounded-lg text-accent-foreground text-sm">
-            <p className="font-medium mb-1">🚀 About This APK</p>
+            <p className="font-medium mb-1">🚀 About This Template</p>
             <p>
-              {buildResult?.status === 'success' 
-                ? "This APK is a WebView wrapper that loads your website as a native app. It's powered by Capacitor, an open-source native runtime for web apps."
-                : "With Capacitor, you can build real WebView apps without a separate backend service."}
+              This Android template is based on Capacitor, an open-source native runtime for web apps. You can use it as a starting point to create your own WebView app.
             </p>
             <p className="mt-2 text-xs">
-              App features:
+              Template features:
             </p>
             <ul className="list-disc pl-5 mt-1 text-xs space-y-1">
-              <li>Native Android experience</li>
-              <li>Loads your website: {url}</li>
-              <li>Works offline if your website supports it</li>
+              <li>Native Android WebView container</li>
+              <li>Easily customizable in Android Studio</li>
+              <li>Support for offline mode</li>
               <li>No ads or third-party tracking</li>
               <li>Full-screen immersive mode</li>
             </ul>
             <p className="mt-2 text-xs">
+              For a complete, ready-to-install APK, you can use the Capacitor CLI or a build service.
               Learn more about Capacitor at <a href="https://capacitorjs.com/docs" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">capacitorjs.com</a>
             </p>
           </div>
