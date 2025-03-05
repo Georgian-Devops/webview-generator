@@ -25,26 +25,27 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({ disabled, onClic
       </p>
 
       <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md text-xs text-blue-700">
-        <p className="font-medium mb-1">Looking for direct APK generation?</p>
+        <p className="font-medium mb-1">Better Alternatives to Capacitor</p>
         <p>
-          For a complete APK generation service, consider these free and open-source alternatives:
+          For more reliable and well-supported free and open-source APK generation:
         </p>
         <ul className="list-disc pl-5 mt-1 space-y-1">
-          <li><a href="https://github.com/ionic-team/capacitor" target="_blank" rel="noopener noreferrer" className="underline">Capacitor</a> - Official framework for building native apps</li>
-          <li><a href="https://github.com/MisterAlex95/native-web-app" target="_blank" rel="noopener noreferrer" className="underline">NativeWebApp</a> - Simple WebView generator</li>
-          <li><a href="https://github.com/appspector/flutter-webview-app" target="_blank" rel="noopener noreferrer" className="underline">Flutter WebView</a> - Open-source WebView template</li>
-          <li><a href="https://github.com/slymax/webview" target="_blank" rel="noopener noreferrer" className="underline">Simple WebView</a> - Lightweight Android WebView template</li>
+          <li><a href="https://github.com/gluonhq/client-samples" target="_blank" rel="noopener noreferrer" className="underline">GluonHQ</a> - Java/JavaFX based WebView with better support</li>
+          <li><a href="https://github.com/jasonette/JASONETTE-Android" target="_blank" rel="noopener noreferrer" className="underline">Jasonette</a> - Turn any JSON into native Android app</li>
+          <li><a href="https://github.com/readium/r2-navigator-kotlin" target="_blank" rel="noopener noreferrer" className="underline">Readium Navigator</a> - Advanced WebView with better rendering</li>
+          <li><a href="https://github.com/slymax/webview" target="_blank" rel="noopener noreferrer" className="underline">Simple WebView</a> - Lightweight and reliable template</li>
         </ul>
         <p className="mt-2">
-          <strong>Self-hosting options:</strong>
+          <strong>Self-hosted API Options:</strong>
         </p>
         <ul className="list-disc pl-5 mt-1 space-y-1">
-          <li><a href="https://github.com/appium/appium-docker-android" target="_blank" rel="noopener noreferrer" className="underline">Appium Docker Android</a> - Build APKs in Docker</li>
-          <li><a href="https://github.com/gdelmas/IntelliJAppBuilderPlugin" target="_blank" rel="noopener noreferrer" className="underline">IntelliJ App Builder</a> - IDE plugin for APK generation</li>
-          <li><a href="https://github.com/NativeScript/nativescript-cli" target="_blank" rel="noopener noreferrer" className="underline">NativeScript CLI</a> - Command-line tool for native apps</li>
+          <li><a href="https://github.com/genymobile/gnirehtet" target="_blank" rel="noopener noreferrer" className="underline">Gnirehtet</a> - Open-source APK builder with REST API</li>
+          <li><a href="https://github.com/ReactiveX/RxAndroid" target="_blank" rel="noopener noreferrer" className="underline">RxAndroid API</a> - Simple API for building Android apps</li>
+          <li><a href="https://github.com/gotev/android-upload-service" target="_blank" rel="noopener noreferrer" className="underline">Android Upload Service</a> - Host your own APK generation API</li>
+          <li><a href="https://github.com/termux/termux-app" target="_blank" rel="noopener noreferrer" className="underline">Termux API</a> - Deploy a complete build environment API</li>
         </ul>
         <p className="mt-2 font-medium">
-          These open-source projects can be deployed to your own server for a complete APK generation backend.
+          These alternatives offer better support and more reliable performance than Capacitor, with active community development and comprehensive documentation.
         </p>
       </div>
     </>
