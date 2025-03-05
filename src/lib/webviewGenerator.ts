@@ -68,9 +68,9 @@ export class WebViewGenerator {
         }
       };
 
-      // For a reliable solution, we'll use a direct download link to a WebView template APK
-      // This template is a basic Android WebView that can be customized
-      const downloadUrl = "https://github.com/ionic-team/capacitor-assets/raw/main/android-template-latest.zip";
+      // Updated download URL to a reliable Android WebView template
+      // Using MIT-licensed open-source WebView template
+      const downloadUrl = "https://raw.githubusercontent.com/slymax/webview/master/app/release/app-release.apk";
       
       return {
         status: 'success',
