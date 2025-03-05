@@ -6,7 +6,7 @@ export interface WebViewGeneratorOptions {
   url: string;
   appName: string;
   packageName: string;
-  appIcon?: string;
+  appIcon?: string | File | null;
   appVersion?: string;
   appVersionCode?: number;
   statusBarColor?: string;
@@ -107,5 +107,35 @@ export class WebViewGenerator {
     if (!packageNameRegex.test(this.options.packageName)) {
       throw new Error('Invalid package name format. Should be like "com.example.app"');
     }
+  }
+
+  /**
+   * Validate the provided URL
+   * @param url The URL to validate
+   * @returns true if valid, false otherwise
+   */
+  public static validateUrl(url: string): boolean {
+    if (!url) return false;
+    
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Validate the package name
+   * @param packageName The package name to validate
+   * @returns true if valid, false otherwise
+   */
+  public static validatePackageName(packageName: string): boolean {
+    if (!packageName) return false;
+    
+    // Package name should follow the reverse domain name convention
+    // E.g., com.example.myapp
+    const packageNameRegex = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+[0-9a-z_]$/i;
+    return packageNameRegex.test(packageName);
   }
 }
