@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Download, Code, FileJson, Smartphone } from "lucide-react";
+import { RefreshCw, Download, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { WebViewGenerator, ApkBuildResult } from '@/lib/webviewGenerator';
 import { AppInfo } from './apk-generator/AppInfo';
@@ -31,7 +32,6 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
   const [generationState, setGenerationState] = useState<'generating' | 'ready'>('generating');
   const [progress, setProgress] = useState(0);
   const [buildResult, setBuildResult] = useState<ApkBuildResult | null>(null);
-  const [capacitorConfig, setCapacitorConfig] = useState<string | null>(null);
   
   useEffect(() => {
     if (generationState === 'generating') {
@@ -60,20 +60,11 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           setProgress(100);
           setGenerationState('ready');
           setBuildResult(result);
-
-          if (result.capacitorConfig) {
-            setCapacitorConfig(JSON.stringify(result.capacitorConfig, null, 2));
-          }
           
           if (result.status === 'success') {
             toast({
               title: "APK generated successfully!",
               description: "Your APK is ready to download and install.",
-            });
-          } else if (result.status === 'capacitor') {
-            toast({
-              title: "Capacitor configuration ready!",
-              description: "Your WebView app configuration is ready. Use the Capacitor CLI to build your app.",
             });
           } else if (result.status === 'demo') {
             toast({
@@ -114,36 +105,10 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
         title: "Downloading Android Template",
         description: "Your template is downloading. Once complete, extract the ZIP file.",
       });
-    } else if (buildResult?.status === 'capacitor' && capacitorConfig) {
-      const blob = new Blob([capacitorConfig], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'capacitor.config.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "Configuration Downloaded",
-        description: "Save this file as capacitor.config.json in your project root.",
-      });
     } else {
       toast({
         title: "Download not available",
         description: "The APK download is currently not available. Please try again later.",
-      });
-    }
-  };
-  
-  const handleCopyConfig = () => {
-    if (capacitorConfig) {
-      navigator.clipboard.writeText(capacitorConfig).then(() => {
-        toast({
-          title: "Configuration copied to clipboard",
-          description: "You can now paste the Capacitor configuration into your project.",
-        });
       });
     }
   };
@@ -204,40 +169,6 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
                 onClick={handleDownload} 
               />
             </div>
-          ) : buildResult?.status === 'capacitor' && capacitorConfig ? (
-            <>
-              <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2">Capacitor Configuration</h4>
-                <div className="bg-muted/50 p-3 rounded-md overflow-x-auto">
-                  <pre className="text-xs whitespace-pre-wrap">{capacitorConfig}</pre>
-                </div>
-                <div className="mt-2 flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleCopyConfig}
-                    className="text-xs flex items-center"
-                  >
-                    <Code className="h-3 w-3 mr-1" /> Copy Config
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleDownload}
-                    className="text-xs flex items-center"
-                  >
-                    <FileJson className="h-3 w-3 mr-1" /> Download JSON
-                  </Button>
-                </div>
-              </div>
-              <Button 
-                className="w-full h-12 rounded-lg font-medium shadow-soft transition-all duration-300 flex items-center justify-center space-x-2"
-                onClick={handleDownload}
-              >
-                <Download className="h-4 w-4" />
-                <span>Download Config</span>
-              </Button>
-            </>
           ) : (
             <DownloadButton 
               disabled={generationState !== 'ready'} 
@@ -248,7 +179,7 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
           <div className="mt-4 p-4 bg-accent/10 border border-accent/20 rounded-lg text-accent-foreground text-sm">
             <p className="font-medium mb-1">🚀 About This Template</p>
             <p>
-              This Android template is based on Capacitor, an open-source native runtime for web apps. You can use it as a starting point to create your own WebView app.
+              This Android template is based on an open-source native runtime for web apps. You can use it as a starting point to create your own WebView app.
             </p>
             <p className="mt-2 text-xs">
               Template features:
@@ -261,8 +192,8 @@ const ApkGenerator: React.FC<ApkGeneratorProps> = ({
               <li>Full-screen immersive mode</li>
             </ul>
             <p className="mt-2 text-xs">
-              For a complete, ready-to-install APK, you can use the Capacitor CLI or a build service.
-              Learn more about Capacitor at <a href="https://capacitorjs.com/docs" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">capacitorjs.com</a>
+              For a complete, ready-to-install APK, you can use one of the open-source alternatives listed below the download button.
+              Learn more about WebView apps at <a href="https://developer.android.com/guide/webapps" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">developer.android.com</a>
             </p>
           </div>
         </div>
