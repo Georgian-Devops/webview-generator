@@ -47,7 +47,8 @@ This is a Python Flask backend service for generating Android WebView APKs from 
   {
     "status": "processing",
     "message": "Building APK: 45% complete",
-    "buildId": "uuid-string"
+    "buildId": "uuid-string",
+    "progress": 45
   }
   ```
 - Response (success):
@@ -78,7 +79,42 @@ This is a Python Flask backend service for generating Android WebView APKs from 
 - Method: GET
 - Response: Demo APK file download
 
-## Production Deployment
+### Health Check
+- URL: `/healthcheck`
+- Method: GET
+- Response:
+  ```json
+  {
+    "status": "healthy",
+    "version": "1.0.0",
+    "message": "WebView APK Generator API is running"
+  }
+  ```
+
+## Deployment Options
+
+### Deploying on Free Tier Services
+
+You can deploy this Python backend on various free tier services:
+
+1. **Heroku Free Tier**:
+   - Create a `Procfile` with `web: gunicorn app:app`
+   - Add `runtime.txt` with your Python version
+   - Deploy using the Heroku CLI or GitHub integration
+
+2. **PythonAnywhere**:
+   - Free tier includes a Flask web app
+   - Upload your code and set up a WSGI configuration
+
+3. **Google Cloud Run**:
+   - Free tier includes 2 million requests per month
+   - Create a Dockerfile and deploy as a container
+
+4. **Vercel Serverless Functions**:
+   - Create a `vercel.json` config file
+   - Deploy using the Vercel CLI
+
+### Production Deployment
 
 For production deployment, consider:
 
@@ -94,3 +130,37 @@ For production deployment, consider:
 4. Implementing proper logging and monitoring
 
 5. Securing the API with authentication
+
+6. Setting up proper error handling and rate limiting
+
+## How the APK Generation Works
+
+The APK generation process follows these steps:
+
+1. Receive build request with URL and app metadata
+2. Create a unique build directory
+3. Store app icon if provided
+4. Start the build process in a background thread
+5. Apply the URL to a WebView template
+6. Build and sign the APK
+7. Store the completed APK for download
+
+## Free and Open Source Alternatives
+
+If you prefer to use free and open-source alternatives for WebView APK generation:
+
+1. **Bubblewrap (PWA Builder)**:
+   - https://github.com/GoogleChromeLabs/bubblewrap
+   - Command-line tool for generating Android apps from PWAs
+
+2. **WebView App Template**:
+   - https://github.com/slymax/webview
+   - Simple Android WebView template you can modify
+
+3. **Trusted Web Activities (TWA)**:
+   - https://developers.google.com/web/android/trusted-web-activity
+   - Google's solution for creating Android apps from PWAs
+
+4. **Cordova/PhoneGap**:
+   - https://cordova.apache.org/
+   - Open-source framework for building mobile apps using HTML, CSS, JS
